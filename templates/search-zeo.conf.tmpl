@@ -1,0 +1,16 @@
+%define INSTANCE ${var_dir}
+
+<zeo>
+  address $INSTANCE/search-zeo.sock
+  read-only false
+  invalidation-queue-size 100
+  pid-filename $INSTANCE/search-zeo.pid
+</zeo>
+
+<blobstorage 1>
+  <filestorage>
+    path $INSTANCE/SearchData.fs
+  </filestorage>
+  blob-dir $INSTANCE/search_blobs
+</blobstorage>
+

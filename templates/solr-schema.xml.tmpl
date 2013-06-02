@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<schema name="$options.options.name" version="1.4">
+
+  <types>
+
+    <!-- The StrField type is not analyzed, but indexed/stored verbatim. -->
+    <fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
+
+    <!-- boolean type: "true" or "false" -->
+    <fieldType name="boolean" class="solr.BoolField" sortMissingLast="true" omitNorms="true"/>
+    <!--Binary data type. The data should be sent/retrieved in as Base64 encoded Strings -->
+    <fieldtype name="binary" class="solr.BinaryField"/>
+
+    <!--
+      Default numeric field types. For faster range queries, consider the tint/tfloat/tlong/tdouble types.
+    -->
+    <fieldType name="int" class="solr.TrieIntField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
+    <fieldType name="float" class="solr.TrieFloatField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
+    <fieldType name="long" class="solr.TrieLongField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
+    <fieldType name="double" class="solr.TrieDoubleField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
+
+    <!-- BBB support for existing schemas based on collective.solr -->
+    <fieldType name="integer" class="solr.TrieIntField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
+
+    <fieldType name="tint" class="solr.TrieIntField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
+    <fieldType name="tfloat" class="solr.TrieFloatField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
+    <fieldType name="tlong" class="solr.TrieLongField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
+    <fieldType name="tdouble" class="solr.TrieDoubleField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
+
+    <fieldType name="date" class="solr.TrieDateField" omitNorms="true" precisionStep="0" positionIncrementGap="0"/>
+
+    <!-- A Trie based date field for faster date range queries and date faceting. -->
+    <fieldType name="tdate" class="solr.TrieDateField" omitNorms="true" precisionStep="6" positionIncrementGap="0"/>
+
+    <fieldType name="random" class="solr.RandomSortField" indexed="true" />
+
+    <!-- A text field that only splits on whitespace for exact matching of words -->
+    <fieldType name="text_ws" class="solr.TextField" positionIncrementGap="100">
+      <analyzer>
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        #for $filter in $options.filters.text_ws
+        <filter class="$filter.class" $filter.extra/>
+        #end for
+      </analyzer>
+    </fieldType>
+
+    <!-- NOTE: We have overriden this template to change the following fieldType -->
+    <fieldType name="text" class="solr.TextField" positionIncrementGap="100">
+      <analyzer>
+        <tokenizer class="solr.ICUTokenizerFactory"/>
+        <filter class="solr.ICUFoldingFilterFactory" />
+        <filter class="solr.TrimFilterFactory" />
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt"/>
+        <filter class="solr.WordDelimiterFilterFactory"
+            splitOnCaseChange="1"
+            splitOnNumerics="1"
+            stemEnglishPossessive="1"
+            generateWordParts="1"
+            generateNumberParts="1"
+            catenateWords="0"
+            catenateNumbers="0"
+            catenateAll="0"
+            preserveOriginal="1"/>
+        <filter class="solr.PorterStemFilterFactory" />
+      </analyzer>
+    </fieldType>
+
+    <!-- NOTE: We also acdded this fieldType -->
+    <fieldType name="string_ci" class="solr.TextField" sortMissingLast="true" omitNorms="true">
+        <analyzer>
+            <tokenizer class="solr.KeywordTokenizerFactory"/>           
+            <filter class="solr.LowerCaseFilterFactory" />
+        </analyzer>
+    </fieldType>
+
+    <!-- since fields of this type are by default not stored or indexed,
+         any data added to them will be ignored outright.  -->
+    <fieldtype name="ignored" stored="false" indexed="false" multiValued="true" class="solr.StrField" />
+
+    <fieldType name="point" class="solr.PointType" dimension="2" subFieldSuffix="_d"/>
+
+    <!-- A specialized field for geospatial search. If indexed, this fieldType must not be multivalued. -->
+    <fieldType name="location" class="solr.LatLonType" subFieldSuffix="_coordinate"/>
+
+   <!--
+    A Geohash is a compact representation of a latitude longitude pair in a single field.
+    See http://wiki.apache.org/solr/SpatialSearch
+   -->
+    <fieldtype name="geohash" class="solr.GeoHashField"/>
+
+    #if $options.options.extraFieldTypes
+    <!-- Extra field types: -->
+    $options.options.extraFieldTypes
+    #end if
+
+ </types>
+
+
+ <fields>
+
+   #for $index in $options.indeces
+   #if $index.default
+   #if $index.omitnorms
+   <field name="$index.name" type="$index.type" indexed="$index.indexed"
+          stored="$index.stored" required="$index.required" multiValued="$index.multivalued"
+          omitNorms="$index.omitnorms" default="$index.default" termVectors="$index.termVectors"
+          termPositions="$index.termPositions" termOffsets="$index.termOffsets"/>
+   #else
+   <field name="$index.name" type="$index.type" indexed="$index.indexed"
+          stored="$index.stored" required="$index.required" multiValued="$index.multivalued"
+          default="$index.default" termVectors="$index.termVectors"
+          termPositions="$index.termPositions" termOffsets="$index.termOffsets"/>
+   #end if
+   #else
+   #if $index.omitnorms
+   <field name="$index.name" type="$index.type" indexed="$index.indexed"
+          stored="$index.stored" required="$index.required" multiValued="$index.multivalued"
+          omitNorms="$index.omitnorms" termVectors="$index.termVectors"
+          termPositions="$index.termPositions" termOffsets="$index.termOffsets"/>
+   #else
+   <field name="$index.name" type="$index.type" indexed="$index.indexed"
+          stored="$index.stored" required="$index.required" multiValued="$index.multivalued"
+          termVectors="$index.termVectors" termPositions="$index.termPositions"
+          termOffsets="$index.termOffsets"/>
+   #end if
+   #end if
+   #end for
+
+   <dynamicField name="tika_*" type="ignored" />
+
+ </fields>
+
+ <!-- Field to use to determine and enforce document uniqueness.
+      Unless this field is marked with required="false", it will be a required field
+   -->
+ #if $options.options.uniqueKey
+ <uniqueKey>$options.options.uniqueKey</uniqueKey>
+ #end if
+
+ #if $options.options.defaultSearchField
+ <!-- field for the QueryParser to use when an explicit fieldname is absent -->
+ <defaultSearchField>$options.options.defaultSearchField</defaultSearchField>
+ #end if
+
+ <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
+ <solrQueryParser defaultOperator="$options.options.defaultOperator"/>
+
+  <!-- copyField commands copy one field to another at the time a document
+        is added to the index.  It's used either to index the same field differently,
+        or to add multiple fields to the same field for easier/faster searching.  -->
+
+  #for $index in $options.indeces
+  #for $copyfield in $index.copyfield
+  <copyField source="$copyfield.source" dest="$copyfield.dest"/>
+  #end for
+  #end for
+
+  #if $options.options.additionalSchemaConfig
+  <!-- Additional schema configuration -->
+  $options.options.additionalSchemaConfig
+  #end if
+
+</schema>
