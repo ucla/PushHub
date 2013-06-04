@@ -2,9 +2,11 @@
 
 ## Forget about platforms. Set your content free.
 
-PushHub enables you to syndicate content across all your web CMSs while keeping the data in sync and under control in a way that RSS can't match.
-
 Creating, sharing, managing and finding content can become very cumbersome when you are managing websites running on various platforms. And putting everything into one system is oftentimes not an option.
+
+Co-developed by UCLA and Six Feet Up, PushHub was designed for large organizations like universities that need to share content across many CMSs.
+
+PushHub enables you to syndicate content across all your web CMSs while keeping the data in sync and under control in a way that RSS can't match.
 
 ## Getting Started
 
