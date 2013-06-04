@@ -1,5 +1,3 @@
-# PushHub
-
 ![PushHub logo][logo]
 
 ## Forget about platforms. Set your content free.
